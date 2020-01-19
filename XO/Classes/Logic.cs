@@ -24,7 +24,7 @@ namespace XO.Classes
         /// <summary>
         /// Словарь игроков, ключ символ игрока, значение игрок
         /// </summary>
-        readonly Dictionary<XOType, Player> xoPlayer = new Dictionary<XOType, Player>()
+        public readonly Dictionary<XOType, Player> XOPlayer = new Dictionary<XOType, Player>()
         {
             { XOType.X, new Player() },
             { XOType.O, new Player() }
@@ -54,6 +54,21 @@ namespace XO.Classes
         public XOType[,] Field { get => field; }
 
         /// <summary>
+        /// Количество строк
+        /// </summary>
+        public int Row { get { return 3; } }
+
+        /// <summary>
+        /// Количество столбцов
+        /// </summary>
+        public int Coulumn { get { return 3; } }
+
+        /// <summary>
+        /// Кол-во в ряд
+        /// </summary>
+        private int CountWin { get { return 3; } }
+
+        /// <summary>
         /// Установим значение в поле по кординатам
         /// </summary>
         /// <param name="btn">Кнопка</param>
@@ -70,7 +85,7 @@ namespace XO.Classes
             btn.Text = xoType.ToString();
             PlayerOneWalk = !PlayerOneWalk;
 
-            return CheckWinPlayer(xoType, cord,this.field);
+            return CheckWinPlayer(xoType, cord, this.field);
         }
 
         /// <summary>
@@ -83,7 +98,7 @@ namespace XO.Classes
         {
             if (!aiSearchSol)
             {
-                var player = xoPlayer[xoType];
+                var player = XOPlayer[xoType];
                 player.Counter++;
                 if (player.Counter < 2) return ResType.Nothing;
 
@@ -97,25 +112,25 @@ namespace XO.Classes
             int supdig = 0;
 
             //Проверка по горизонтали и вертикали
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < Row; i++)
             {
                 int hor = 0;
                 int ver = 0;
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Coulumn; j++)
                 {
                     if (field[i, j] == xoType)
                         hor++;
                     if (field[j, i] == xoType)
                         ver++;
 
-                    if (hor == 3 || ver == 3)
+                    if (hor == CountWin || ver == CountWin)
                         return GetWinner(xoType);
                 }
             }
 
 
             //Проверка по диагонали
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < Row; i++)
             {
 
                 if (field[i, i] == xoType)
@@ -123,10 +138,11 @@ namespace XO.Classes
                 if (field[i, 2 - i] == xoType)
                     supdig++;
 
-                if (mdig == 3 || supdig == 3)
+                if (mdig == CountWin || supdig == CountWin)
                     return GetWinner(xoType);
             }
 
+            //Чтобы не сканировать весь массив на заполненность
             if (fielled >= 7) return ResType.NoWinner;
             return ResType.Nothing;
         }
@@ -140,12 +156,12 @@ namespace XO.Classes
             instance.PlayerOneWalk = true;
             instance.fielled = 0;
 
-            foreach (var keyPair in xoPlayer)
+            foreach (var keyPair in XOPlayer)
             {
                 keyPair.Value.Counter = 0;
             }
 
-            field = new XOType[3, 3];
+            field = new XOType[Row, Coulumn];
         }
 
         /// <summary>

@@ -19,9 +19,9 @@ namespace XO
         {
             logic = Logic.Instance;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < logic.Row; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < logic.Coulumn; j++)
                 {
                     Button button = new Button
                     {
@@ -47,7 +47,7 @@ namespace XO
 
             if (!logic.PlayerOneWalk && res == ResType.Nothing)
             {
-                cord = AILogic.CordAI(logic, XOType.O, logic.Field);
+                cord = AILogic.CordAI(logic,XOType.O , logic.Field);
                 foreach (var cntrl in gameBoard.Controls)
                 {
                     if (cntrl is Button btnAI)
