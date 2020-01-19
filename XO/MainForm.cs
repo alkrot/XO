@@ -17,6 +17,7 @@ namespace XO
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            DoubleBuffered = true;
             logic = Logic.Instance;
 
             for (int i = 0; i < logic.Row; i++)
@@ -36,6 +37,9 @@ namespace XO
                     gameBoard.Controls.Add(button);
                 }
             }
+
+            progressGame.Maximum = logic.Row * logic.Coulumn;
+            progressGame.Step = 1;
         }
 
         private void Button_Click(object sender, EventArgs e)
@@ -47,41 +51,58 @@ namespace XO
 
             if (!logic.PlayerOneWalk && res == ResType.Nothing)
             {
-                cord = AILogic.CordAI(logic,XOType.O , logic.Field);
+                cord = AILogic.CordAI(logic, XOType.O, logic.Field);
                 foreach (var cntrl in gameBoard.Controls)
                 {
                     if (cntrl is Button btnAI)
                     {
                         var btnCord = (int[])btnAI.Tag;
                         if (btnCord[0] == cord[0] && btnCord[1] == cord[1])
-                           ShowMessage(logic.SetPlayer(btnAI, cord));
+                            ShowMessage(logic.SetPlayer(btnAI, cord));
                     }
                 }
             }
         }
 
-        private static void ShowMessage(ResType res)
+        private void ShowMessage(ResType res)
         {
             switch (res)
             {
                 case ResType.NoSet:
-                    MessageBox.Show("Клетка занята!", "Сообщение");
+                    toolResult.Text = "Клетка занята!";
+                    toolResult.ForeColor = Color.DarkRed;
                     break;
                 case ResType.NoWinner:
-                    MessageBox.Show("Ничья", "Сообщение");
+                    toolResult.Text = "Ничья";
+                    toolResult.ForeColor = Color.DarkBlue;
+                    gameBoard.Enabled = false;
                     break;
-                case ResType.WinnerPlayerOne:
-                    MessageBox.Show("Выиграл первый игрок", "Сообщение");
+                case ResType.Nothing:
+                    SetInformation();
+                    progressGame.PerformStep();
                     break;
-                case ResType.WinnerPlayerTwo:
-                    MessageBox.Show("Выиграл второй игрок", "Сообщение");
+                default:
+                    var player = res == ResType.WinnerPlayerOne ? "первый" : "второй";
+                    toolResult.ForeColor = Color.Green;
+                    toolResult.Text = $"Выиграл {player} игрок";
+                    progressGame.Value = progressGame.Maximum;
+                    gameBoard.Enabled = false;
                     break;
             }
+        }
+
+        private void SetInformation()
+        {
+            toolResult.Text = "Информация";
+            toolResult.ForeColor = Color.Black;
         }
 
         private void ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             logic.NewGame();
+            SetInformation();
+            gameBoard.Enabled = true;
+            progressGame.Value = 0;
 
             foreach (var contrl in gameBoard.Controls)
             {

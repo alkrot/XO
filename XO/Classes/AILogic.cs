@@ -33,23 +33,32 @@ namespace XO.Classes
             var fieldClone = GetClone(field);
             var isStop = false;
 
-            //Найдем свободную клетку
-            for (int i = 0; i < 3; i++)
+            if (field[1, 1] == 0)
             {
-                for (int j = 0; j < 3; j++)
+                cord[0] = 1;
+                cord[1] = 1;
+            }
+            else
+            {
+
+                //Найдем свободную клетку
+                for (int i = 0; i < 3; i++)
                 {
-                    if (fieldClone[i, j] == 0)
+                    for (int j = 0; j < 3; j++)
                     {
-                        cord[0] = i;
-                        cord[1] = j;
+                        if (fieldClone[i, j] == 0)
+                        {
+                            cord[0] = i;
+                            cord[1] = j;
 
-                        fieldClone[i, j] = xoType;
-                        isStop = true;
-                        break;
+                            fieldClone[i, j] = xoType;
+                            isStop = true;
+                            break;
+                        }
                     }
-                }
 
-                if (isStop) break;
+                    if (isStop) break;
+                }
             }
 
             //Получим символ следующего игрока
