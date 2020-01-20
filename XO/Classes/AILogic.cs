@@ -1,4 +1,6 @@
-﻿using XO.Enums;
+﻿using System;
+using System.Collections.Generic;
+using XO.Enums;
 
 namespace XO.Classes
 {
@@ -29,37 +31,37 @@ namespace XO.Classes
         private static int[] CheckPlayer(XOType[,] field, Logic logic, XOType xoType)
         {
             var cord = new int[2];
+            var dicCord = new Dictionary<ResType, int[]>();
 
             var fieldClone = GetClone(field);
             var isStop = false;
 
-            if (field[1, 1] == 0)
+            //Найдем свободную клетку
+            for (int i = 0; i < 3; i++)
             {
-                cord[0] = 1;
-                cord[1] = 1;
-            }
-            else
-            {
-
-                //Найдем свободную клетку
-                for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
                 {
-                    for (int j = 0; j < 3; j++)
+                    if (fieldClone[i, j] == 0)
                     {
-                        if (fieldClone[i, j] == 0)
-                        {
-                            cord[0] = i;
-                            cord[1] = j;
+                        cord = new int[] { i, j };
+                        fieldClone[i, j] = xoType;
 
-                            fieldClone[i, j] = xoType;
+                        ResType resType = logic.CheckWinPlayer(xoType, cord, fieldClone, true);
+                        dicCord[resType] = new int[] { i, j };
+
+                        if (resType == ResType.WinnerPlayerTwo)
+                        {
                             isStop = true;
                             break;
                         }
+                        fieldClone[i, j] = 0;
                     }
-
-                    if (isStop) break;
                 }
+
+                if (isStop) break;
             }
+
+            if (dicCord.TryGetValue(ResType.WinnerPlayerTwo, out var cords)) return cords;
 
             //Получим символ следующего игрока
             xoType = xoType == XOType.X ? XOType.O : XOType.X;
