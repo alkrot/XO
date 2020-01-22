@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using XO.Enums;
 
 namespace XO.Classes
@@ -31,15 +32,20 @@ namespace XO.Classes
         private static int[] CheckPlayer(XOType[,] field, Logic logic, XOType xoType)
         {
             var cord = new int[2];
-            var dicCord = new Dictionary<ResType, int[]>();
+            var dicCord = new Dictionary<ResType, List<int[]>>();
 
             var fieldClone = GetClone(field);
             var isStop = false;
 
-            //Найдем свободную клетку
-            for (int i = 0; i < 3; i++)
+            if (field[1, 1] == 0)
             {
-                for (int j = 0; j < 3; j++)
+                return new int[] { 1, 1 };
+            }
+
+            //Найдем свободную клетку
+            for (int i = 0; i < logic.Row; i++)
+            {
+                for (int j = 0; j < logic.Coulumn; j++)
                 {
                     if (fieldClone[i, j] == 0)
                     {
@@ -47,13 +53,8 @@ namespace XO.Classes
                         fieldClone[i, j] = xoType;
 
                         ResType resType = logic.CheckWinPlayer(xoType, cord, fieldClone, true);
-                        dicCord[resType] = new int[] { i, j };
-
-                        if (resType == ResType.WinnerPlayerTwo)
-                        {
-                            isStop = true;
-                            break;
-                        }
+                        if (!dicCord.ContainsKey(resType)) dicCord[resType] = new List<int[]>();
+                        dicCord[resType].Add(cord);
                         fieldClone[i, j] = 0;
                     }
                 }
@@ -61,7 +62,20 @@ namespace XO.Classes
                 if (isStop) break;
             }
 
-            if (dicCord.TryGetValue(ResType.WinnerPlayerTwo, out var cords)) return cords;
+            if (dicCord.TryGetValue(ResType.WinnerPlayerTwo, out var cords)) return cords.First();
+            if (dicCord.TryGetValue(ResType.Nothing, out var cordNothing))
+            {
+                foreach (var cr in cordNothing)
+                {
+                    var row = cr[0];
+                    var col = cr[1];
+
+                    if (row == 0 && (col == 0 || col == logic.Coulumn - 1) || row == logic.Row - 1 && (col == 0 || col == logic.Coulumn - 1)) {
+                        cord = cr;
+                        break;
+                    }
+                }
+            }
 
             //Получим символ следующего игрока
             xoType = xoType == XOType.X ? XOType.O : XOType.X;
